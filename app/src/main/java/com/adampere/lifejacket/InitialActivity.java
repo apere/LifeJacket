@@ -1,9 +1,11 @@
 package com.adampere.lifejacket;
 
 import android.content.Intent;
+import android.os.Debug;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -43,11 +45,22 @@ public class InitialActivity extends AppCompatActivity {
      * @param view
      */
     public void openVideoStream(View view){
-        Intent intent =  new Intent(this, VideoStream.class);
+
         RadioGroup rgp = (RadioGroup)findViewById(R.id.viewRadioGroup);
-        int radioID = rgp.getCheckedRadioButtonId();
-        intent.putExtra(EXTRA_MESSAGE, radioID);
-        startActivity(intent);
+        if(rgp.getCheckedRadioButtonId() != -1) {
+            int radioID = rgp.getCheckedRadioButtonId();
+            View rbv = rgp.findViewById(radioID);
+            RadioButton rb = (RadioButton)rgp.findViewById(radioID);
+
+
+            String tex = (String) rb.getText().toString();
+            Log.d("radiochecked", tex);
+
+            Intent intent =  new Intent(this, VideoStream.class);
+            intent.putExtra(EXTRA_MESSAGE, tex);
+            startActivity(intent);
+        }
+
     }
 
 }

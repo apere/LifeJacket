@@ -22,5 +22,8 @@
         android:text="Large Text"
         android:id="@+id/debugViewString"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:backgroundTint="@color/abc_search_url_text"
+        android:textColor="@color/abc_primary_text_material_dark"
+        android:textSize="75px" />
 </RelativeLayout>
