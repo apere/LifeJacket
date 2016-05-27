@@ -1,5 +1,6 @@
 package com.adampere.lifejacket;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,8 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -51,19 +54,38 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_stream);
 
+        // hide the title bar
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null){
+            actionBar.hide();
+        }
+
+        // hide the action bar
+        View decorView = getWindow().getDecorView();
+        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+        decorView.setSystemUiVisibility(uiOptions);
+
+        // recieve information from last activity
         Intent intent = getIntent();
         String message = intent.getStringExtra(InitialActivity.EXTRA_MESSAGE);
 
+
+        // debugging string
         TextView dbgStr = (TextView)findViewById(R.id.debugViewString);
         dbgStr.setText(message);
 
+
+        // setup webcams
         mCameraButton = (ImageButton)findViewById(R.id.camera_button);
         mCameraButton.setOnClickListener(mOnClickListener);
 
         mUVCCameraView = (SurfaceView)findViewById(R.id.camera_surface_view);
         mUVCCameraView.getHolder().addCallback(mSurfaceViewCallback);
 
+
         mUSBMonitor = new USBMonitor(this, mOnDeviceConnectListener);
+
+
 
     }
 
@@ -228,8 +250,5 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
             mPreviewSurface = null;
         }
     };
-
-
-
 
 }
