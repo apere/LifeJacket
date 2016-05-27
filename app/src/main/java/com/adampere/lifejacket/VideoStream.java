@@ -3,6 +3,7 @@ package com.adampere.lifejacket;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.hardware.usb.UsbDevice;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,10 +13,12 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -45,8 +48,10 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
     private SurfaceView mUVCCameraView;
     // for open&start / stop&close camera preview
     private ImageButton mCameraButton;
+    private Button hideButton;
     private Surface mPreviewSurface;
     private boolean isActive, isPreview;
+    View decorView;
 
 
     @Override
@@ -61,18 +66,12 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
         }
 
         // hide the action bar
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
+        decorView = getWindow().getDecorView();
+        hideSystemUI();
 
         // recieve information from last activity
         Intent intent = getIntent();
-        String message = intent.getStringExtra(InitialActivity.EXTRA_MESSAGE);
-
-
-        // debugging string
-        TextView dbgStr = (TextView)findViewById(R.id.debugViewString);
-        dbgStr.setText(message);
+       // now do something with the intent;
 
 
         // setup webcams
@@ -83,17 +82,41 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
         mUVCCameraView.getHolder().addCallback(mSurfaceViewCallback);
 
 
+
         mUSBMonitor = new USBMonitor(this, mOnDeviceConnectListener);
+        mUSBMonitor.register();
+        List<UsbDevice> deviceList = mUSBMonitor.getDeviceList();
+        for(UsbDevice item : deviceList) {
+            if (DEBUG) Log.v(TAG, item.getDeviceName() + " - " + item.getProductName());
+        }
 
-
-
+        hideButton = (Button)findViewById(R.id.hide_ui);
+        hideButton.setOnClickListener(hideOnClickListener);
+        debugString();
     }
+
+
+    private void hideSystemUI() {
+        // Set the IMMERSIVE flag.
+        // Set the content to appear under the system bars so that the content
+        // doesn't resize when the system bars hide and show.
+        decorView.setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION // hide nav bar
+                        | View.SYSTEM_UI_FLAG_FULLSCREEN // hide status bar
+                        | View.SYSTEM_UI_FLAG_IMMERSIVE);
+    }
+
 
     @Override
     public void onResume() {
         super.onResume();
         if (DEBUG) Log.v(TAG, "onResume:");
         mUSBMonitor.register();
+        hideSystemUI();
+        debugString();
     }
 
     @Override
@@ -101,6 +124,8 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
         if (DEBUG) Log.v(TAG, "onPause:");
         mUSBMonitor.unregister();
         super.onPause();
+        hideSystemUI();
+        debugString();
     }
 
     @Override
@@ -120,6 +145,17 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
         mUVCCameraView = null;
         mCameraButton = null;
         super.onDestroy();
+        hideSystemUI();
+    }
+
+    private void debugString() {
+        // debugging string
+        TextView dbgStr = (TextView)findViewById(R.id.debugViewString);
+        String message = "no.";
+        if(mUVCCamera != null) {
+            message = mUVCCamera.getDeviceName();
+        }
+        dbgStr.setText(message);
     }
 
     private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -128,6 +164,8 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
             if (mUVCCamera == null) {
                 // XXX calling CameraDialog.showDialog is necessary at only first time(only when app has no permission).
                 CameraDialog.showDialog(VideoStream.this);
+                debugString();
+
             } else {
                 synchronized (mSync) {
                     mUVCCamera.destroy();
@@ -135,6 +173,16 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
                     isActive = isPreview = false;
                 }
             }
+            hideSystemUI();
+            debugString();
+        }
+    };
+
+    private final View.OnClickListener hideOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(final View view) {
+            hideSystemUI();
+            debugString();
         }
     };
 
@@ -143,6 +191,7 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
         public void onAttach(final UsbDevice device) {
             if (DEBUG) Log.v(TAG, "onAttach:");
             Toast.makeText(VideoStream.this, "USB_DEVICE_ATTACHED", Toast.LENGTH_SHORT).show();
+            hideSystemUI();
         }
 
         @Override
@@ -152,6 +201,7 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
                 if (mUVCCamera != null)
                     mUVCCamera.destroy();
                 isActive = isPreview = false;
+                debugString();
             }
             EXECUTER.execute(new Runnable() {
                 @Override
@@ -161,11 +211,11 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
                         mUVCCamera.open(ctrlBlock);
                         if (DEBUG) Log.i(TAG, "supportedSize:" + mUVCCamera.getSupportedSize());
                         try {
-                            mUVCCamera.setPreviewSize(UVCCamera.DEFAULT_PREVIEW_WIDTH, UVCCamera.DEFAULT_PREVIEW_HEIGHT, UVCCamera.FRAME_FORMAT_MJPEG);
+                            mUVCCamera.setPreviewSize(2048, 1536, UVCCamera.FRAME_FORMAT_MJPEG);
                         } catch (final IllegalArgumentException e) {
                             try {
                                 // fallback to YUV mode
-                                mUVCCamera.setPreviewSize(UVCCamera.DEFAULT_PREVIEW_WIDTH, UVCCamera.DEFAULT_PREVIEW_HEIGHT, UVCCamera.DEFAULT_PREVIEW_MODE);
+                                mUVCCamera.setPreviewSize(2048, 1536, UVCCamera.DEFAULT_PREVIEW_MODE);
                             } catch (final IllegalArgumentException e1) {
                                 mUVCCamera.destroy();
                                 mUVCCamera = null;
@@ -173,6 +223,7 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
                         }
                         if ((mUVCCamera != null) && (mPreviewSurface != null)) {
                             isActive = true;
+
                             mUVCCamera.setPreviewDisplay(mPreviewSurface);
                             mUVCCamera.startPreview();
                             isPreview = true;
@@ -180,6 +231,8 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
                     }
                 }
             });
+            debugString();
+            hideSystemUI();
         }
 
         @Override
@@ -196,16 +249,20 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
                     isActive = isPreview = false;
                 }
             }
+            hideSystemUI();
         }
 
         @Override
         public void onDettach(final UsbDevice device) {
             if (DEBUG) Log.v(TAG, "onDettach:");
             Toast.makeText(VideoStream.this, "USB_DEVICE_DETACHED", Toast.LENGTH_SHORT).show();
+            hideSystemUI();
         }
 
         @Override
         public void onCancel() {
+            if (DEBUG) Log.v(TAG, "onCancel:");
+            hideSystemUI();
         }
     };
 
@@ -236,6 +293,8 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
                     isPreview = true;
                 }
             }
+            hideSystemUI();
+            debugString();
         }
 
         @Override
@@ -248,6 +307,7 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
                 isPreview = false;
             }
             mPreviewSurface = null;
+            hideSystemUI();
         }
     };
 
