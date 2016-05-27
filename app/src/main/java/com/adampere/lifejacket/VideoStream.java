@@ -59,12 +59,6 @@ public class VideoStream extends AppCompatActivity implements CameraDialog.Camer
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_stream);
 
-        // hide the title bar
-        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
-        if(actionBar != null){
-            actionBar.hide();
-        }
-
         // hide the action bar
         decorView = getWindow().getDecorView();
         hideSystemUI();

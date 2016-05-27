@@ -20,7 +20,6 @@ public class InitialActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_initial);
         addRadioButtons(2);
-
     }
 
 
@@ -61,6 +60,11 @@ public class InitialActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
+    }
+
+    public void openVideoPlayer(View view){
+        Intent intent = new Intent(this, VideoActivity.class);
+        startActivity(intent);
     }
 
 }
