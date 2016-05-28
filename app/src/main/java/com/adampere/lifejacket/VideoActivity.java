@@ -2,6 +2,7 @@ package com.adampere.lifejacket;
 
 import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem;
 import android.support.v4.app.NavUtils;
+import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.VideoView;
 
@@ -85,15 +87,20 @@ public class VideoActivity extends AppCompatActivity {
         decorView = getWindow().getDecorView();
         hideSystemUI();
 
+        // Play a video
+//        VideoView vidSurf = (VideoView)findViewById(R.id.videoView);
+//        vidSurf.setMediaController(new MediaController(this));
 
-        VideoView vidSurf = (VideoView)findViewById(R.id.videoView);
-        vidSurf.setMediaController(new MediaController(this));
+//        String uriPath =  "android.resource://" + getPackageName() + "/" + R.raw.woman_staring_cropped;
+//        Uri uri = Uri.parse(uriPath);
+//        vidSurf.setVideoURI(uri);
+//        vidSurf.requestFocus();
+//        vidSurf.start();
 
-        String uriPath =  "android.resource://" + getPackageName() + "/" + R.raw.test_vid;
-        Uri uri = Uri.parse(uriPath);
-        vidSurf.setVideoURI(uri);
-        vidSurf.requestFocus();
-        vidSurf.start();
+        // Display Image
+        ImageView mImageView;
+        mImageView = (ImageView) findViewById(R.id.imageView);
+        mImageView.setImageResource(R.drawable.woman_staring_cropped);
 
     }
 
