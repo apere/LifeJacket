@@ -3,11 +3,13 @@ package com.adampere.lifejacket;
 import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.graphics.BitmapFactory;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.MenuItem;
@@ -70,7 +72,8 @@ public class VideoActivity extends AppCompatActivity {
         }
     };
     private boolean mVisible;
-    View decorView;
+    private View decorView;
+    private MediaPlayer mp;
 
 
     @Override
@@ -101,8 +104,30 @@ public class VideoActivity extends AppCompatActivity {
         ImageView mImageView;
         mImageView = (ImageView) findViewById(R.id.imageView);
         mImageView.setImageResource(R.drawable.woman_staring_cropped);
+        mImageView.setOnClickListener(playAudioClickListener);
+        // Play Audio
+        mp = new MediaPlayer();
+        try {
+            String path =  "android.resource://" + getPackageName() + "/" + R.raw.invasion;
+            mp.setDataSource(VideoActivity.this, Uri.parse(path));
+            mp.prepare();
+            mp.setLooping(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
+
+    private final View.OnClickListener playAudioClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(final View view) {
+           if( mp.isPlaying()) {
+               mp.pause();
+           } else {
+               mp.start();
+           }
+        }
+    };
 
     private void hideSystemUI() {
         // Set the IMMERSIVE flag.

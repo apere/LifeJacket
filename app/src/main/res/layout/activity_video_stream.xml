@@ -18,7 +18,7 @@
         android:scaleType="centerCrop"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
-        android:background="#0fffffff" />
+        android:background="#00ffffff" />
 
 
     <TextView
@@ -32,27 +32,16 @@
         android:textSize="45px"
         android:layout_alignTop="@+id/hide_ui"
         android:layout_alignParentEnd="true"
-        android:paddingRight="20px" />
+        android:paddingRight="20px"
+        android:visibility="invisible" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="200px"
-        android:text="hideUI"
         android:id="@+id/hide_ui"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
-        android:background="#0cffffff" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="CAM"
-        android:id="@+id/textView2"
-        android:layout_alignBottom="@+id/camera_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="39dp"
-        android:textStyle="bold" />
+        android:background="#00ffffff" />
 
 </RelativeLayout>
