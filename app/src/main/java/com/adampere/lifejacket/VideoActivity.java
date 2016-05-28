@@ -74,6 +74,8 @@ public class VideoActivity extends AppCompatActivity {
     private boolean mVisible;
     private View decorView;
     private MediaPlayer mp;
+    private ImageView mImageView;
+    private boolean orig_image;
 
 
     @Override
@@ -101,10 +103,11 @@ public class VideoActivity extends AppCompatActivity {
 //        vidSurf.start();
 
         // Display Image
-        ImageView mImageView;
+
         mImageView = (ImageView) findViewById(R.id.imageView);
         mImageView.setImageResource(R.drawable.woman_staring_cropped);
         mImageView.setOnClickListener(playAudioClickListener);
+        orig_image = true;
         // Play Audio
         mp = new MediaPlayer();
         try {
@@ -121,11 +124,18 @@ public class VideoActivity extends AppCompatActivity {
     private final View.OnClickListener playAudioClickListener = new View.OnClickListener() {
         @Override
         public void onClick(final View view) {
-           if( mp.isPlaying()) {
-               mp.pause();
-           } else {
-               mp.start();
-           }
+//           if( mp.isPlaying()) {
+//               mp.pause();
+//           } else {
+//               mp.start();
+//           }
+            if(orig_image){
+                mImageView.setImageResource(R.drawable.gray);
+            } else {
+                mImageView.setImageResource(R.drawable.woman_staring_cropped);
+            }
+            orig_image = !orig_image;
+
         }
     };
 
